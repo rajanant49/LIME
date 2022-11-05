@@ -37,9 +37,9 @@ class LIME:
 
         img = cv2.imread(imgPath)
 
-        # # resize image if very large
-        # if img.shape[0]>1000 or img.shape[1]>1000:
-        #     img = cv2.resize(img,(1000,1000), interpolation=cv2.INTER_AREA)
+        # resize image if very large
+        if img.shape[0]>1000 or img.shape[1]>1000:
+            img = cv2.resize(img,(1000,1000), interpolation=cv2.INTER_AREA)
 
         self.L = img / 255.0
         self.row, self.col = self.L.shape[0], self.L.shape[1]

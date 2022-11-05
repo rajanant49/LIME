@@ -1,6 +1,6 @@
-bm3d==3.0.9
-numpy==1.22.3
-scipy==1.9.1
-skimage==0.0
-tqdm==4.64.0
+bm3d
+numpy
+scipy
+scikit-image
+tqdm
 opencv-python
