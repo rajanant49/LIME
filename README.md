@@ -2,6 +2,12 @@
 
 This repository contains code for paper implementation of LIME: Low-Light Image Enhancement via Illumination Map Estimation. The paper link can be found [here](https://ieeexplore.ieee.org/document/7782813). 
 
+
+### Group members:
+- Kolla Ananta Raj (19EE38009)
+- Manav Nitin Kapadnis (19EE38010)
+- Modi Omkar (19EE38015
+
 # Installation
 
 Clone the repository :
