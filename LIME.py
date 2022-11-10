@@ -7,7 +7,7 @@ from scipy.spatial import distance
 from tqdm import trange
 import bm3d
 
-def firstOrderDerivative(n, k=1):
+def ToeplitzFirstOrderDerivative(n, k=1):
     return -np.eye(n) + np.eye(n, k=k)
 
 def toeplitizMatrix(row,col):
@@ -33,14 +33,16 @@ class LIME:
 
     # Load the image and normalize it to 0~1
     # Initialize Dx, Dy, DD
-    def loadimage(self,imgPath):
-
-        img = cv2.imread(imgPath)
+    def loadimage(self,img):
 
         # resize image if very large
         if img.shape[0]>1000 or img.shape[1]>1000:
-            img = cv2.resize(img,(1000,1000), interpolation=cv2.INTER_AREA)
+            imh = int(img.shape[0]/img.shape[1]*1000)
+            imw = 1000
+            # print(imh,imw)
+            img = cv2.resize(img,(imw,imh), interpolation=cv2.INTER_AREA)
 
+        self.img = img
         self.L = img / 255.0
         self.row, self.col = self.L.shape[0], self.L.shape[1]
 
@@ -48,8 +50,10 @@ class LIME:
         self.T_hat = np.max(self.L, axis=2)
 
         #  And D contains Dh and Dv , which are the Toeplitz matrices from the discrete gradient operators with forward difference.
-        self.Dv = firstOrderDerivative(self.row,k=1)
-        self.Dh = firstOrderDerivative(self.col,k=-1)
+        self.Dv = ToeplitzFirstOrderDerivative(self.row,k=1)
+        # print(self.Dv)
+        self.Dh = ToeplitzFirstOrderDerivative(self.col,k=-1)
+        # print(self.Dh)
         self.W = self.Strategy()
 
     def gaussian_kernel(self, spatial_sigma, size = 5):
@@ -94,13 +98,17 @@ class LIME:
             return np.vstack((self.Wv, self.Wh))
 
     # T subproblem
-    def T_sub(self, G, Z, miu):
+    def ProblemT(self, G, Z, miu):
         X = G - (Z / miu)
         Xv = X[:self.row, :]
         Xh = X[self.row:, :]
 
         dx,dy = toeplitizMatrix(self.row,self.col)
+        # print(dx)
+        # print(dy)
         dxf,dyf = fft2(dx),fft2(dy)
+        # print(dxf)
+        # print(dyf)
 
         # calculating using FFT
         DD = np.conj(dxf) * dxf + np.conj(dyf) * dyf
@@ -116,17 +124,17 @@ class LIME:
         return np.sign(X) * np.maximum(np.abs(X) - e, 0)
         
     # G subproblem
-    def G_sub(self, T, Z, miu, W):
+    def ProblemG(self, T, Z, miu, W):
 
         # equation 15
         return self.shrink(np.vstack((self.Dv @ T, T @ self.Dh)) + Z / miu, self.alpha * W / miu)
 
     # Z subproblem
-    def Z_sub(self, T, G, Z, miu):
+    def ProblemZ(self, T, G, Z, miu):
         return Z + miu * (np.vstack((self.Dv @ T, T @ self.Dh)) - G)
 
     # miu sub problem
-    def miu_sub(self, miu):
+    def ProblemMiu(self, miu):
         return miu * self.rho
 
     def run(self):
@@ -139,10 +147,10 @@ class LIME:
         miu = 1
 
         for i in trange(self.iter):
-            T = self.T_sub(G, Z, miu)
-            G = self.G_sub(T, Z, miu, self.W)
-            Z = self.Z_sub(T, G, Z, miu)
-            miu = self.miu_sub(miu)
+            T = self.ProblemT(G, Z, miu)
+            G = self.ProblemG(T, Z, miu, self.W)
+            Z = self.ProblemZ(T, G, Z, miu)
+            miu = self.ProblemMiu(miu)
 
         self.T = T ** self.gamma
 

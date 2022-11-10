@@ -14,7 +14,8 @@ def main(args):
                 eps=args.epsilon,
                 sigma=args.sigma)
 
-    lime.loadimage(args.filePath)
+    opencv_image = cv2.imread(args.filePath)
+    lime.loadimage(opencv_image)
     #run
     R = lime.run()
     #save picture
