@@ -1,9 +1,11 @@
 # Digital Image Processing (EE60062) Term Project
 
-This repository contains code for paper implementation of LIME: Low-Light Image Enhancement via Illumination Map Estimation. The paper link can be found [here](https://ieeexplore.ieee.org/document/7782813). 
+This repository contains code for paper implementation of LIME: Low-Light Image Enhancement via Illumination Map Estimation. The paper link can be found [here](https://ieeexplore.ieee.org/document/7782813).
 
+The link to video presentation can be seen [here](https://youtu.be/as2XRm7pi9Q).
 
 ### Group members:
+
 - Kolla Ananta Raj (19EE38009)
 - Manav Nitin Kapadnis (19EE38010)
 - Modi Omkar (19EE38015
